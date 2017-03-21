@@ -1,4 +1,12 @@
-<?php $this->load->view("partial/header"); ?>
+<?php
+/**
+ * register
+ * @package opensourcepos 3.0.2
+ * @version 0.1
+ * Modifique este archivo para vender tickets
+ */
+$this->load->view("partial/header"); 
+?>
 
 <?php
 if (isset($error))
@@ -16,6 +24,36 @@ if (isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
+
+<!-- Modal para seleccionar asientos -->
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Asientos Funciones" id="asientos-modal">
+    <div class="modal-dialog modal-sm" role="document">
+        
+        <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Seleccionar asientos</h4>
+        </div>
+            <select class="form-control" id="funcion">
+                <option>Seleccionar</option>
+                <option value="12:00">12:00</option>
+                <option value="13:00">13:00</option>
+                <option value="14:00">14:00</option>
+                <option value="15:00">15:00</option>
+                <option value="16:00">16:00</option>
+                <option value="17:00">17:00</option>
+                <option value="18:00">18:00</option>
+                <option value="19:00">19:00</option>
+                <option value="20:00">20:00</option>
+                <option value="21:00">21:00</option>
+                <option value="22:00">22:00</option>
+                <option value="23:00">23:00</option>
+            </select>
+            <div class="row" id="asientos"></div>
+
+        </div>
+    </div>
+</div>
 
 <div id="register_wrapper">
 
@@ -54,7 +92,9 @@ if (isset($success))
 				<?php
 				}
 				?>
-
+                                <li class="pull-right">
+                                    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#asientos-modal"><span class="glyphicon glyphicon-user"></span> Asientos Disponibles</button>
+                                </li>
 				<li class="pull-right">
 					<button class='btn btn-default btn-sm modal-dlg' id='show_suspended_sales_button' data-href='<?php echo site_url($controller_name."/suspended"); ?>'
 							title='<?php echo $this->lang->line('sales_suspended_sales'); ?>'>
@@ -176,7 +216,12 @@ if (isset($success))
 
 							<td><?php echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'value'=>to_decimals($item['discount'], 0), 'tabindex'=>++$tabindex));?></td>
 							<td><?php echo to_currency($item['price']*$item['quantity']-$item['price']*$item['quantity']*$item['discount']/100); ?></td>
-							<td><a href="javascript:document.getElementById('<?php echo 'cart_'.$line ?>').submit();" title=<?php echo $this->lang->line('sales_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td>
+                                                        <?php if($item['item_id']==1){ ?>
+                                                            <td><button type="button" class="btn btn-warning btn-sm select-ticket" data-toggle="modal" data-target="#asientos-modal" quantity="<?php echo $item['quantity'] ?>"><span class="glyphicon glyphicon-user"></span></button></td>
+                                                        <?php }else{ ?>
+                                                            <td><a href="javascript:document.getElementById('<?php echo 'cart_'.$line ?>').submit();" title=<?php echo $this->lang->line('sales_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td>
+                                                        <?php } ?>
+                                                        
 						</tr>
 						<tr>
 							<?php 
@@ -495,8 +540,8 @@ if (isset($success))
 					<div class="no-gutter row">
 						<div class="form-group form-group-sm">
 							<div class="col-xs-12">
-								<?php echo form_label($this->lang->line('common_comments'), 'comments', array('class'=>'control-label', 'id'=>'comment_label', 'for'=>'comment')); ?>
-								<?php echo form_textarea(array('name'=>'comment', 'id'=>'comment', 'class'=>'form-control input-sm', 'value'=>$comment, 'rows'=>'2')); ?>
+                                                            <?php echo form_label($this->lang->line('common_comments'), 'comments', array('class'=>'control-label', 'id'=>'comment_label', 'for'=>'comment')); ?>
+                                                            <?php echo form_textarea(array('name'=>'comment', 'id'=>'comment', 'class'=>'form-control input-sm', 'value'=>$comment, 'rows'=>'2')); ?>
 							</div>
 						</div>
 					</div>
@@ -767,5 +812,70 @@ function check_payment_type_giftcard()
 }
 
 </script>
+
+<!-- plugin de jquery para seleccionar los asientos -->
+<link rel="stylesheet" type="text/css" href="/dist/vendor/jquery_seat/jquery.seat-charts.css">
+<script type="text/javascript" src="/dist/vendor/jquery_seat/jquery.seat-charts.min.js"></script>
+<!-- plugin de jquery para seleccionar los asientos -->
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#funcion').change(function () {
+            var sc,selected;
+            $.getJSON('./tickets/get_used', {'time': $('#function').val()}, function (rest) {
+                console.debug(rest);
+                sc = $('#asientos').seatCharts({
+                    map: [
+                        'a_a_a',
+                        '_a_a_',
+                        'a_a_a',
+                        '_a_a_',
+                        'a_a_a',
+                        '_a_a_',
+                        '__a_a',
+                        '_a_a_',
+                        '__a_a',
+                        '_a_a_',
+                        '__a_a'
+                    ],
+                    seats: {
+                        a: {
+                            price: 99.99,
+                            classes: 'front-seat' //your custom CSS class
+                        }
+
+                    },
+                    click: function () {
+                        
+                        if (this.status() == 'available') {
+                            selected = sc.find('a.selected').length+1;
+                            console.debug(selected);
+                            if(selected <= $('.select-ticket').attr('quantity')){
+                                return 'selected';
+                            }else{
+                                return;
+                            }
+                            
+                        } else if (this.status() == 'selected') {
+                            //seat has been vacated
+                            return 'available';
+                        } else if (this.status() == 'unavailable') {
+                            //seat has been already booked
+                            return 'unavailable';
+                        } else {
+                            return this.style();
+                        }
+                        
+                    }
+                });
+                
+                sc.find('c.available').status('unavailable');
+                
+            });
+            
+        });
+
+    });
+</script>
+<!-- Termina modal para seleccionar asientos -->
 
 <?php $this->load->view("partial/footer"); ?>
