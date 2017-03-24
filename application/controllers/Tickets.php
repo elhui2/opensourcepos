@@ -15,14 +15,77 @@ class Tickets extends CI_Controller {
         $this->load->model('tickets_tb');
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function get_used() {
         $used = $this->tickets_tb->get_used($this->input->get('time'));
 
         if (!$used) {
-            return $this->ajax_response(404, FALSE, 'Nu hay registros');
+            return $this->ajax_response(404, FALSE, 'Si hay registros');
         } else {
-            return $this->ajax_response(404, FALSE, 'Nu hay registros', $used);
+            return $this->ajax_response(200, TRUE, 'No hay registros', $used);
         }
+    }
+
+    /**
+     * 
+     */
+    public function request() {
+        $time = $this->input->post('time');
+        $seats = $this->input->post('seats');
+        $map = $this->map();
+        $tranza = md5(date('Y-m-d h:i:s'));
+        $this->session->set_userdata('transaction', $tranza);
+        $this->session->set_userdata('seats_show', $time);
+        foreach ($seats as $key => $seat) {
+
+            $dataSeat = array(
+                'schedule' => $time,
+                'seat' => $seat,
+                'num_seat' => $map[$seat],
+                'status' => 'blocked',
+                'dt_show' => date('Y-m-d h:i'),
+                'transaction' => $tranza
+            );
+
+            if (!$this->tickets_tb->create($dataSeat)) {
+                return $this->ajax_response(500, FALSE, 'Ocurrio un error');
+            }
+        }
+
+        return $this->ajax_response(200, TRUE, 'Los asientos se apartaron', $tranza);
+    }
+
+    protected function map() {
+        return $map = array(
+            '1_1' => 1,
+            '1_3' => 2,
+            '1_5' => 3,
+            '2_2' => 4,
+            '2_4' => 5,
+            '3_1' => 6,
+            '3_3' => 7,
+            '3_5' => 8,
+            '4_2' => 9,
+            '4_4' => 10,
+            '5_1' => 11,
+            '5_3' => 12,
+            '5_5' => 13,
+            '6_2' => 14,
+            '6_4' => 15,
+            '7_3' => 16,
+            '7_5' => 17,
+            '8_2' => 18,
+            '8_4' => 19,
+            '9_3' => 20,
+            '9_5' => 21,
+            '10_2' => 22,
+            '10_4' => 23,
+            '11_3' => 24,
+            '11_5' => 25,
+        );
     }
 
     /**
@@ -43,8 +106,6 @@ class Tickets extends CI_Controller {
             'message' => $message,
             'response' => $response
         );
-
-        error_log(json_encode($resTranza));
 
         return $this->output
                         ->set_content_type('application/json')

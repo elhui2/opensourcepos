@@ -27,7 +27,7 @@ if (isset($success))
 
 <!-- Modal para seleccionar asientos -->
 <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Asientos Funciones" id="asientos-modal">
-    <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         
         <div class="modal-content">
             <div class="modal-header">
@@ -36,21 +36,29 @@ if (isset($success))
         </div>
             <select class="form-control" id="funcion">
                 <option>Seleccionar</option>
-                <option value="12:00">12:00</option>
-                <option value="13:00">13:00</option>
-                <option value="14:00">14:00</option>
-                <option value="15:00">15:00</option>
-                <option value="16:00">16:00</option>
-                <option value="17:00">17:00</option>
-                <option value="18:00">18:00</option>
-                <option value="19:00">19:00</option>
-                <option value="20:00">20:00</option>
-                <option value="21:00">21:00</option>
-                <option value="22:00">22:00</option>
-                <option value="23:00">23:00</option>
+                <?php 
+                for($i=11;$i<=23;$i++){
+                    $time_s = $i.':00';
+                    $selected = ($time_s==$this->session->userdata('seats_show'))? 'selected' : '';
+                    ?>
+                    <option value="<?php echo $time_s ?>" <?php echo $selected ?> ><?php echo $time_s ?></option>
+                <?php
+                }
+                ?>
             </select>
-            <div class="row" id="asientos"></div>
-
+            <div class="row">
+                <div class="col-lg-6" id="asientos">
+                    
+                </div>
+                <div class="col-lg-6" id="asientos-panel">
+                    <div class="form-group">
+                        <label>Asientos</label>
+                        <input type="number" id="seats-count" name="seats_count" class="form-control">
+                    </div>
+                    
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary form-control" data-dismiss="modal" id="save-seats">Guardar</button>
         </div>
     </div>
 </div>
@@ -92,9 +100,9 @@ if (isset($success))
 				<?php
 				}
 				?>
-                                <li class="pull-right">
+<!--                                <li class="pull-right">
                                     <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#asientos-modal"><span class="glyphicon glyphicon-user"></span> Asientos Disponibles</button>
-                                </li>
+                                </li>-->
 				<li class="pull-right">
 					<button class='btn btn-default btn-sm modal-dlg' id='show_suspended_sales_button' data-href='<?php echo site_url($controller_name."/suspended"); ?>'
 							title='<?php echo $this->lang->line('sales_suspended_sales'); ?>'>
@@ -209,7 +217,7 @@ if (isset($success))
 								}
 								else
 								{								
-									echo form_input(array('name'=>'quantity', 'class'=>'form-control input-sm', 'value'=>to_quantity_decimals($item['quantity']), 'tabindex'=>++$tabindex));
+									echo form_input(array('name'=>'quantity', 'class'=>'form-control input-sm quantity-'.$line, 'value'=>to_quantity_decimals($item['quantity']), 'tabindex'=>++$tabindex));
 								}
 								?>
 							</td>
@@ -217,7 +225,7 @@ if (isset($success))
 							<td><?php echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'value'=>to_decimals($item['discount'], 0), 'tabindex'=>++$tabindex));?></td>
 							<td><?php echo to_currency($item['price']*$item['quantity']-$item['price']*$item['quantity']*$item['discount']/100); ?></td>
                                                         <?php if($item['item_id']==1){ ?>
-                                                            <td><button type="button" class="btn btn-warning btn-sm select-ticket" data-toggle="modal" data-target="#asientos-modal" quantity="<?php echo $item['quantity'] ?>"><span class="glyphicon glyphicon-user"></span></button></td>
+                                                            <td><button type="button" class="btn btn-warning btn-sm select-ticket" data-toggle="modal" data-target="#asientos-modal" quantity="<?php echo $item['quantity'] ?>" line="<?php echo $line ?>"><span class="glyphicon glyphicon-user"></span></button></td>
                                                         <?php }else{ ?>
                                                             <td><a href="javascript:document.getElementById('<?php echo 'cart_'.$line ?>').submit();" title=<?php echo $this->lang->line('sales_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td>
                                                         <?php } ?>
@@ -814,68 +822,9 @@ function check_payment_type_giftcard()
 </script>
 
 <!-- plugin de jquery para seleccionar los asientos -->
+<link rel="stylesheet" type="text/css" href="/css/seats.css">
 <link rel="stylesheet" type="text/css" href="/dist/vendor/jquery_seat/jquery.seat-charts.css">
 <script type="text/javascript" src="/dist/vendor/jquery_seat/jquery.seat-charts.min.js"></script>
-<!-- plugin de jquery para seleccionar los asientos -->
-<script type="text/javascript">
-    $(document).ready(function () {
-        $('#funcion').change(function () {
-            var sc,selected;
-            $.getJSON('./tickets/get_used', {'time': $('#function').val()}, function (rest) {
-                console.debug(rest);
-                sc = $('#asientos').seatCharts({
-                    map: [
-                        'a_a_a',
-                        '_a_a_',
-                        'a_a_a',
-                        '_a_a_',
-                        'a_a_a',
-                        '_a_a_',
-                        '__a_a',
-                        '_a_a_',
-                        '__a_a',
-                        '_a_a_',
-                        '__a_a'
-                    ],
-                    seats: {
-                        a: {
-                            price: 99.99,
-                            classes: 'front-seat' //your custom CSS class
-                        }
-
-                    },
-                    click: function () {
-                        
-                        if (this.status() == 'available') {
-                            selected = sc.find('a.selected').length+1;
-                            console.debug(selected);
-                            if(selected <= $('.select-ticket').attr('quantity')){
-                                return 'selected';
-                            }else{
-                                return;
-                            }
-                            
-                        } else if (this.status() == 'selected') {
-                            //seat has been vacated
-                            return 'available';
-                        } else if (this.status() == 'unavailable') {
-                            //seat has been already booked
-                            return 'unavailable';
-                        } else {
-                            return this.style();
-                        }
-                        
-                    }
-                });
-                
-                sc.find('c.available').status('unavailable');
-                
-            });
-            
-        });
-
-    });
-</script>
-<!-- Termina modal para seleccionar asientos -->
+<script type="text/javascript" src="/js/seats.js"></script>
 
 <?php $this->load->view("partial/footer"); ?>

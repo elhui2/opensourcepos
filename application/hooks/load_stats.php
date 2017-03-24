@@ -1,7 +1,8 @@
 <?php
 
 function load_stats()
-{
+{   
+    return;
     $CI =& get_instance();
     $line = $CI->lang->line('common_you_are_using_ospos');
 

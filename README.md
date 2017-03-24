@@ -18,3 +18,5 @@ Los asientos van numerados del 1 al 25 y acomodados segun el diagrama
 '__a_a',
 '_a_a_',
 '__a_a'
+
+pointofsale
