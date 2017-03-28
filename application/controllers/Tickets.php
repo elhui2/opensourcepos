@@ -35,7 +35,7 @@ class Tickets extends CI_Controller {
             if ($minutes > 3) {
                 //Volver a poner el ticket como disponible
                 $dataTicket = array(
-                    'status'=>'active',
+                    'status'=>'canceled',
                     'transaction'=>''
                 );
                 

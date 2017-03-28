@@ -187,7 +187,8 @@
             <h1>Entrada</h1>
             <p class="lead">Folio #<?php echo $ticket['id_ticket'] ?></p>
             <p class="small">Ticket de venta #<?php echo $sale_id ?></p>
-            <p class="lead">Fila <?php echo $fasiento[0]; ?> Asiento <?php echo $fasiento[1]; ?></p>
+            <p class="lead">Comienza <?php echo $ticket['schedule'] ?></p>
+            <p class="lead">Fila <?php echo $fasiento[0]; ?> ,Asiento <?php echo $fasiento[1]; ?></p>
             <div class="barcode">
                 <img src='data:mage/png;base64,<?php echo $barcodeB64; ?>' /><br>
                 <?php echo $barcodeTkt; ?>

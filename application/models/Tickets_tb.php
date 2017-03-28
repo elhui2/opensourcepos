@@ -44,7 +44,7 @@ class Tickets_tb extends CI_Model {
      * @return mixed array con el registro o false
      */
     public function read($idRegister) {
-        $this->db->where('id', $idRegister);
+        $this->db->where('id_ticket', $idRegister);
         $result = $this->db->get($this->env['name']);
         return $result->result_array()[0];
     }

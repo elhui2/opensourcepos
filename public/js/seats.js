@@ -71,7 +71,7 @@ $(document).ready(function () {
                         sc.get(rest.response[i].seat).status('unavailable');
                     } else
                     if (rest.response[i].status == 'blocked') {
-                        sc.get(rest.response[i].seat).status('selected');
+                        sc.get(rest.response[i].seat).status('unavailable');
                     }
                 }
             }
@@ -111,7 +111,7 @@ $(document).ready(function () {
                     sc.get(rest.response[i].seat).status('unavailable');
                 } else
                 if (rest.response[i].status == 'blocked') {
-                    sc.get(rest.response[i].seat).status('selected');
+                    sc.get(rest.response[i].seat).status('unavailable');
                 }
 
             }
