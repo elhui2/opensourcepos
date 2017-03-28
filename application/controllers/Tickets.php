@@ -22,10 +22,33 @@ class Tickets extends CI_Controller {
     public function get_used() {
         $used = $this->tickets_tb->get_used($this->input->get('time'));
 
+        foreach ($used as $ticket) {
+            if ($ticket['status'] != 'blocked') {
+                continue;
+            }
+
+            $time1 = strtotime(date('Y-m-d H:i:s'));
+            $time2 = strtotime($ticket['status_time']);
+            $interval = abs($time1 - $time2);
+            $minutes = round($interval / 60);
+
+            if ($minutes > 3) {
+                //Volver a poner el ticket como disponible
+                $dataTicket = array(
+                    'status'=>'active',
+                    'transaction'=>''
+                );
+                
+                $this->tickets_tb->update($dataTicket, $ticket['id_ticket']);
+            }
+
+        }
+        
+        $used = $this->tickets_tb->get_used($this->input->get('time'));
         if (!$used) {
-            return $this->ajax_response(404, FALSE, 'Si hay registros');
+            return $this->ajax_response(404, FALSE, 'No hay registros');
         } else {
-            return $this->ajax_response(200, TRUE, 'No hay registros', $used);
+            return $this->ajax_response(200, TRUE, 'Hay registros', $used);
         }
     }
 
@@ -86,6 +109,10 @@ class Tickets extends CI_Controller {
             '11_3' => 24,
             '11_5' => 25,
         );
+    }
+
+    public function infophp() {
+        return phpinfo();
     }
 
     /**

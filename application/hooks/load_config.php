@@ -30,7 +30,7 @@ function load_config()
     }
     else
     {
-        date_default_timezone_set('America/New_York');
+        date_default_timezone_set('America/Mexico_City');
     }
 
     bcscale(max(2, $CI->config->item('currency_decimals') + $CI->config->item('tax_decimals')));

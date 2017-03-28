@@ -32,7 +32,7 @@ class Tickets_tb extends CI_Model {
     public function create($dataRegister) {
         if ($this->db->insert($this->env['name'], $dataRegister)) {
             return TRUE;
-        }else{
+        } else {
             return FALSE;
         }
     }
@@ -68,6 +68,20 @@ class Tickets_tb extends CI_Model {
             return FALSE;
         }
     }
+    
+    /**
+     * update
+     * @param array $dataRegister Array asociativo con los datos del registro
+     * @param int $idRegister Llave primaria del registro en la tabla
+     */
+    public function update($dataRegister, $idRegister) {
+        $this->db->where('id_ticket', $idRegister);
+        if ($this->db->update($this->env['name'], $dataRegister)) {
+            return $this->read($idRegister);
+        } else {
+            return FALSE;
+        }
+    }
 
     /**
      * get_used
@@ -76,7 +90,7 @@ class Tickets_tb extends CI_Model {
      */
     public function get_used($time = FALSE) {
         $this->db->where('dt_show', date('Y-m-d'));
-        $this->db->where_in('status', array('used','blocked'));
+        $this->db->where_in('status', array('used', 'blocked'));
         if ($time) {
             $this->db->where('schedule', $time);
         }
@@ -89,16 +103,26 @@ class Tickets_tb extends CI_Model {
             return FALSE;
         }
     }
-    
-    public function complete_sale($transaction, $id_sale){
+
+    public function complete_sale($transaction, $id_sale) {
         $ticketsData = array(
-            'sale_id'=> $id_sale,
-            'status'=>'used'
+            'sale_id' => $id_sale,
+            'status' => 'used'
         );
-        $this->db->where('transaction',$transaction);
-        if($this->db->update('tickets',$ticketsData)){
+        $this->db->where('transaction', $transaction);
+        if ($this->db->update('tickets', $ticketsData)) {
             return TRUE;
-        }else{
+        } else {
+            return FALSE;
+        }
+    }
+
+    public function sale($sale_id) {
+        $this->db->where('sale_id', $sale_id);
+        $result = $this->db->get('tickets');
+        if ($result->num_rows()) {
+            return $result->result_array();
+        } else {
             return FALSE;
         }
     }

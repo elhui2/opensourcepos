@@ -413,11 +413,13 @@ class Sales extends Secure_Controller {
                 $data['cart'] = $this->sale_lib->sort_and_filter_cart($data['cart']);
 
                 $data = $this->xss_clean($data);
+                
                 $tickets = $this->tickets_tb->complete_sale($this->session->userdata('transaction'), $data['sale_id_num']);
                 
                 if ($data['sale_id_num'] == -1 || $tickets == FALSE) {
                     $data['error_message'] = $this->lang->line('sales_transaction_failed');
                 } else {
+                    $data['tickets'] = $this->tickets_tb->sale($data['sale_id_num']);
                     $data['barcode'] = $this->barcode_lib->generate_receipt_barcode($data['sale_id']);
                     $this->load->view('sales/invoice', $data);
                     $this->sale_lib->clear_all();
@@ -455,6 +457,7 @@ class Sales extends Secure_Controller {
             // Save the data to the sales table
             $data['sale_id_num'] = $this->Sale->save($data['cart'], $customer_id, $employee_id, $data['comments'], null, $data['payments'], $data['dinner_table']);
             $data['sale_id'] = 'POS ' . $data['sale_id_num'];
+            
             $tickets = $this->tickets_tb->complete_sale($this->session->userdata('transaction'), $data['sale_id_num']);
             $data['cart'] = $this->sale_lib->sort_and_filter_cart($data['cart']);
             $data = $this->xss_clean($data);
@@ -463,7 +466,8 @@ class Sales extends Secure_Controller {
                 $data['error_message'] = $this->lang->line('sales_transaction_failed');
             } else {
                 $data['barcode'] = $this->barcode_lib->generate_receipt_barcode($data['sale_id']);
-
+                //Datos de los tickets para impresion
+                $data['tickets'] = $this->tickets_tb->sale($data['sale_id_num']);
                 // Reload (sorted) and filter the cart line items for printing purposes
                 $data['cart'] = $this->get_filtered($this->sale_lib->get_cart_reordered($data['sale_id_num']));
 
@@ -784,7 +788,9 @@ class Sales extends Secure_Controller {
     }
 
     public function receipt($sale_id) {
+        $this->load->model('tickets_tb');
         $data = $this->_load_sale_data($sale_id);
+        $data['tickets'] = $this->tickets_tb->sale($sale_id);
         $this->load->view('sales/receipt', $data);
         $this->sale_lib->clear_all();
     }
