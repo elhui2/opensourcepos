@@ -413,16 +413,19 @@ class Sales extends Secure_Controller {
                 $data['cart'] = $this->sale_lib->sort_and_filter_cart($data['cart']);
 
                 $data = $this->xss_clean($data);
-                
-                $tickets = $this->tickets_tb->complete_sale($this->session->userdata('transaction'), $data['sale_id_num']);
-                
-                if ($data['sale_id_num'] == -1 || $tickets == FALSE) {
+
+                if ($this->session->userdata('transaction')) {
+                    $tickets = $this->tickets_tb->complete_sale($this->session->userdata('transaction'), $data['sale_id_num']);
+                }
+
+                if ($data['sale_id_num'] == -1) {
                     $data['error_message'] = $this->lang->line('sales_transaction_failed');
                 } else {
                     $data['tickets'] = $this->tickets_tb->sale($data['sale_id_num']);
                     $data['barcode'] = $this->barcode_lib->generate_receipt_barcode($data['sale_id']);
                     $this->load->view('sales/invoice', $data);
                     $this->sale_lib->clear_all();
+                    $this->session->set_userdata('transaction', FALSE);
                 }
             }
         } elseif ($this->sale_lib->is_quote_mode()) {
@@ -457,12 +460,13 @@ class Sales extends Secure_Controller {
             // Save the data to the sales table
             $data['sale_id_num'] = $this->Sale->save($data['cart'], $customer_id, $employee_id, $data['comments'], null, $data['payments'], $data['dinner_table']);
             $data['sale_id'] = 'POS ' . $data['sale_id_num'];
-            
-            $tickets = $this->tickets_tb->complete_sale($this->session->userdata('transaction'), $data['sale_id_num']);
+            if ($this->session->userdata('transaction')) {
+                $tickets = $this->tickets_tb->complete_sale($this->session->userdata('transaction'), $data['sale_id_num']);
+            }
             $data['cart'] = $this->sale_lib->sort_and_filter_cart($data['cart']);
             $data = $this->xss_clean($data);
 
-            if ($data['sale_id_num'] == -1 || $tickets == FALSE) {
+            if ($data['sale_id_num'] == -1) {
                 $data['error_message'] = $this->lang->line('sales_transaction_failed');
             } else {
                 $data['barcode'] = $this->barcode_lib->generate_receipt_barcode($data['sale_id']);
@@ -473,6 +477,7 @@ class Sales extends Secure_Controller {
 
                 $this->load->view('sales/receipt', $data);
                 $this->sale_lib->clear_all();
+                $this->session->set_userdata('transaction', FALSE);
             }
         }
     }

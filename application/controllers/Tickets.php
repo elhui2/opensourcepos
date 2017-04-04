@@ -20,31 +20,32 @@ class Tickets extends CI_Controller {
      * @return type
      */
     public function get_used() {
-        $used = $this->tickets_tb->get_used($this->input->get('time'));
+        $used = $this->tickets_tb->get_used($this->input->get('date'), $this->input->get('time'));
 
-        foreach ($used as $ticket) {
-            if ($ticket['status'] != 'blocked') {
-                continue;
+        if ($used) {
+            foreach ($used as $ticket) {
+                if ($ticket['status'] != 'blocked') {
+                    continue;
+                }
+
+                $time1 = strtotime(date('Y-m-d H:i:s'));
+                $time2 = strtotime($ticket['status_time']);
+                $interval = abs($time1 - $time2);
+                $minutes = round($interval / 60);
+
+                if ($minutes > 3) {
+                    //Volver a poner el ticket como disponible
+                    $dataTicket = array(
+                        'status' => 'canceled'
+                    );
+
+                    $this->tickets_tb->update($dataTicket, $ticket['id_ticket']);
+                }
             }
-
-            $time1 = strtotime(date('Y-m-d H:i:s'));
-            $time2 = strtotime($ticket['status_time']);
-            $interval = abs($time1 - $time2);
-            $minutes = round($interval / 60);
-
-            if ($minutes > 3) {
-                //Volver a poner el ticket como disponible
-                $dataTicket = array(
-                    'status'=>'canceled',
-                    'transaction'=>''
-                );
-                
-                $this->tickets_tb->update($dataTicket, $ticket['id_ticket']);
-            }
-
+            
         }
         
-        $used = $this->tickets_tb->get_used($this->input->get('time'));
+        $used = $this->tickets_tb->get_used($this->input->get('date'), $this->input->get('time'));
         if (!$used) {
             return $this->ajax_response(404, FALSE, 'No hay registros');
         } else {
@@ -57,6 +58,7 @@ class Tickets extends CI_Controller {
      */
     public function request() {
         $time = $this->input->post('time');
+        $date = $this->input->post('date');
         $seats = $this->input->post('seats');
         $map = $this->map();
         $tranza = md5(date('Y-m-d h:i:s'));
@@ -69,7 +71,7 @@ class Tickets extends CI_Controller {
                 'seat' => $seat,
                 'num_seat' => $map[$seat],
                 'status' => 'blocked',
-                'dt_show' => date('Y-m-d h:i'),
+                'dt_show' => $date,
                 'transaction' => $tranza
             );
 

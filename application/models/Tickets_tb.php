@@ -68,7 +68,7 @@ class Tickets_tb extends CI_Model {
             return FALSE;
         }
     }
-    
+
     /**
      * update
      * @param array $dataRegister Array asociativo con los datos del registro
@@ -88,9 +88,11 @@ class Tickets_tb extends CI_Model {
      * @param string $time hora de la funcion
      * Obtiene un array con los asientos ocupados de una funcion
      */
-    public function get_used($time = FALSE) {
-        $this->db->where('dt_show', date('Y-m-d'));
+    public function get_used($date, $time = FALSE) {
         $this->db->where_in('status', array('used', 'blocked'));
+        $this->db->where('dt_show', $date);
+
+
         if ($time) {
             $this->db->where('schedule', $time);
         }
@@ -109,6 +111,7 @@ class Tickets_tb extends CI_Model {
             'sale_id' => $id_sale,
             'status' => 'used'
         );
+
         $this->db->where('transaction', $transaction);
         if ($this->db->update('tickets', $ticketsData)) {
             return TRUE;

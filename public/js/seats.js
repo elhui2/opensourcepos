@@ -57,14 +57,14 @@ $(document).ready(function () {
     $('#funcion').change(function () {
         funcion = $(this).val();
         sc.find('a').status('available');
-        
+
         console.debug(funcion);
         if (funcion == 0 || funcion == '') {
             alert('seleccionar horario');
             return;
         }
 
-        $.getJSON('./tickets/get_used', {'time': $('#funcion').val()}, function (rest) {
+        $.getJSON('./tickets/get_used', {'date': $('#date-show').val(),'time': $('#funcion').val()}, function (rest) {
             if (rest.status) {
                 for (var i = 0; i < rest.response.length; i++) {
                     if (rest.response[i].status == 'used') {
@@ -91,7 +91,7 @@ $(document).ready(function () {
         });
 
         setTimeout(function () {
-            $.post('/tickets/request', {'time': $('#funcion').val(), 'seats': seats}, function (rest) {
+            $.post('/tickets/request', {'date': $('#date-show').val(),'time': $('#funcion').val(), 'seats': seats}, function (rest) {
                 if (rest.status) {
                     transaction = rest.response;
                     $('#cart_' + line).submit();
@@ -103,7 +103,7 @@ $(document).ready(function () {
         }, 500);
     });
 
-    $.getJSON('./tickets/get_used', {'time': $('#funcion').val()}, function (rest) {
+    $.getJSON('./tickets/get_used', {'date': $('#date-show').val(), 'time': $('#funcion').val()}, function (rest) {
         if (rest.status) {
             for (var i = 0; i < rest.response.length; i++) {
 //                console.debug(rest.response[i].seat + rest.response[i].status);
@@ -117,5 +117,9 @@ $(document).ready(function () {
             }
         }
 
+    });
+
+    $("#date-show").datepicker({
+        dateFormat: "yy-mm-dd"
     });
 });
