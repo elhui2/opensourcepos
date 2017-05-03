@@ -497,7 +497,7 @@ class Sale extends CI_Model {
 
         foreach ($items as $line => $item) {
             $cur_item_info = $this->Item->get_info($item['item_id']);
-            if ($item['item_id'] == 3) {
+            if ($item['item_id'] == 2) {
                 for ($i = 1; $i <= $item['quantity']; $i++) {
                     $dataTicket = array(
                         'seat' => 'ABIERTO',
