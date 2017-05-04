@@ -61,8 +61,9 @@ class Tickets extends CI_Controller {
         $date = $this->input->post('date');
         $seats = $this->input->post('seats');
         $map = $this->map();
-        $tranza = md5(date('Y-m-d h:i:s'));
-        $this->session->set_userdata('transaction', $tranza);
+        $tranza = date('Y-m-d H:i:s');
+        $this->session->set_userdata('transaction', md5($tranza));
+		$this->session->set_userdata('time_transaction', $tranza);
         $this->session->set_userdata('seats_show', $time);
         foreach ($seats as $key => $seat) {
 
@@ -72,7 +73,7 @@ class Tickets extends CI_Controller {
                 'num_seat' => $map[$seat],
                 'status' => 'blocked',
                 'dt_show' => $date,
-                'transaction' => $tranza
+                'transaction' => md5($tranza)
             );
 
             if (!$this->tickets_tb->create($dataSeat)) {

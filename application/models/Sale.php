@@ -621,6 +621,8 @@ class Sale extends CI_Model {
         $this->db->delete('sales_items', array('sale_id' => $sale_id));
         // delete sale itself
         $this->db->delete('sales', array('sale_id' => $sale_id));
+		
+		$this->db->delete('tickets', array('sale_id' => $sale_id));
 
         // execute transaction
         $this->db->trans_complete();

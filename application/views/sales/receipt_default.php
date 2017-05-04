@@ -184,6 +184,9 @@
         $barcodeB64 = $this->barcode_lib->generate_receipt_barcode($barcodeTkt);
         ?>
         <div class="ticket text-center" style="color:#000;border-top: 2px solid black; margin-top: 20px;">
+            <root>
+            <cutpaper feed='false' type='partial'/>
+            </root>
             <h1>Entrada</h1>
             <p class="lead">Folio #<?php echo $ticket['id_ticket'] ?></p>
             <p class="small">Ticket de venta #<?php echo $sale_id ?></p>

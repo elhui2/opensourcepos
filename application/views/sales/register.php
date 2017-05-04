@@ -6,6 +6,17 @@
  * Modifique este archivo para vender tickets
  */
 $this->load->view("partial/header");
+if($this->session->userdata('transaction')){
+			$time1 = strtotime(date('Y-m-d H:i:s'));
+            $time2 = strtotime($this->session->userdata('time_transaction'));
+			$interval = abs($time1 - $time2);
+			$minutes = round($interval / 60);
+
+			if ($minutes > 3) {
+				$this->session->set_userdata('transaction',FALSE);
+				$this->session->set_userdata('time_transaction',FALSE);
+			}			
+		}
 ?>
 
 <?php
@@ -68,7 +79,7 @@ if (isset($success)) {
 </div>
 
 <div id="register_wrapper">
-
+	<input type="hidden" name="asientos-flag" id="asientos-flag" value="<?php echo ($this->session->userdata('transaction'))? $this->session->userdata('transaction'): false ?>">
     <!-- Top register controls -->
 
     <?php echo form_open($controller_name . "/change_mode", array('id' => 'mode_form', 'class' => 'form-horizontal panel panel-default')); ?>
@@ -453,6 +464,7 @@ if (isset($success)) {
                     <?php echo form_close(); ?>
 
                     <div class='btn btn-sm btn-success pull-right' id='add_payment_button' tabindex='<?php echo ++$tabindex; ?>'><span class="glyphicon glyphicon-credit-card">&nbsp</span><?php echo $this->lang->line('sales_add_payment'); ?></div>
+					<p class="alert alert-warning small" id="completar-venta">Selecciona los asientos para completar la venta<p>
                     <?php
                 }
                 ?>
@@ -578,6 +590,7 @@ if (isset($success)) {
 </div>
 
 <script type="text/javascript">
+    var base_url = "<?php echo base_url() ?>";
     $(document).ready(function ()
     {
         $("#item").autocomplete(
@@ -785,9 +798,9 @@ if ($this->config->item('invoice_enable') == TRUE) {
 </script>
 
 <!-- plugin de jquery para seleccionar los asientos -->
-<link rel="stylesheet" type="text/css" href="/css/seats.css">
-<link rel="stylesheet" type="text/css" href="/dist/vendor/jquery_seat/jquery.seat-charts.css">
-<script type="text/javascript" src="/dist/vendor/jquery_seat/jquery.seat-charts.min.js"></script>
-<script type="text/javascript" src="/js/seats.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo base_url() ?>css/seats.css">
+<link rel="stylesheet" type="text/css" href="<?php echo base_url() ?>dist/vendor/jquery_seat/jquery.seat-charts.css">
+<script type="text/javascript" src="<?php echo base_url() ?>dist/vendor/jquery_seat/jquery.seat-charts.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url() ?>js/seats.js"></script>
 
 <?php $this->load->view("partial/footer"); ?>

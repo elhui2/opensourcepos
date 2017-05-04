@@ -1,4 +1,21 @@
 $(document).ready(function () {
+	
+	if($('.select-ticket').attr('quantity')==undefined){
+		console.debug('No hay boletos en la lista');
+		$('#completar-venta').fadeOut();
+	}else{
+		if($('#asientos-flag').val() == false || $('#asientos-flag').val() == '' || $('#asientos-flag').val() == undefined){
+			$('#add_payment_button').fadeOut();
+			$('#completar-venta').fadeIn();
+			console.debug('Asientos no seleccionados');
+		}else{
+			console.debug('Asientos seleccionados');
+			$('#completar-venta').fadeOut();
+			$('#add_payment_button').fadeIn();
+		}
+		console.debug('Hay boletos en la lista '+$('#asientos-flag').val());
+		
+	}
     var selected, quantity, line, funcion, transaction, sc;
 
     $('.select-ticket').click(function () {
@@ -64,7 +81,7 @@ $(document).ready(function () {
             return;
         }
 
-        $.getJSON('./tickets/get_used', {'date': $('#date-show').val(),'time': $('#funcion').val()}, function (rest) {
+        $.getJSON(base_url+'tickets/get_used', {'date': $('#date-show').val(),'time': $('#funcion').val()}, function (rest) {
             if (rest.status) {
                 for (var i = 0; i < rest.response.length; i++) {
                     if (rest.response[i].status == 'used') {
@@ -91,7 +108,7 @@ $(document).ready(function () {
         });
 
         setTimeout(function () {
-            $.post('/tickets/request', {'date': $('#date-show').val(),'time': $('#funcion').val(), 'seats': seats}, function (rest) {
+            $.post(base_url+'tickets/request', {'date': $('#date-show').val(),'time': $('#funcion').val(), 'seats': seats}, function (rest) {
                 if (rest.status) {
                     transaction = rest.response;
                     $('#cart_' + line).submit();
@@ -103,7 +120,7 @@ $(document).ready(function () {
         }, 500);
     });
 
-    $.getJSON('./tickets/get_used', {'date': $('#date-show').val(), 'time': $('#funcion').val()}, function (rest) {
+    $.getJSON(base_url+'tickets/get_used', {'date': $('#date-show').val(), 'time': $('#funcion').val()}, function (rest) {
         if (rest.status) {
             for (var i = 0; i < rest.response.length; i++) {
 //                console.debug(rest.response[i].seat + rest.response[i].status);
