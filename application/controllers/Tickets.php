@@ -42,9 +42,8 @@ class Tickets extends CI_Controller {
                     $this->tickets_tb->update($dataTicket, $ticket['id_ticket']);
                 }
             }
-            
         }
-        
+
         $used = $this->tickets_tb->get_used($this->input->get('date'), $this->input->get('time'));
         if (!$used) {
             return $this->ajax_response(404, FALSE, 'No hay registros');
@@ -63,7 +62,7 @@ class Tickets extends CI_Controller {
         $map = $this->map();
         $tranza = date('Y-m-d H:i:s');
         $this->session->set_userdata('transaction', md5($tranza));
-		$this->session->set_userdata('time_transaction', $tranza);
+        $this->session->set_userdata('time_transaction', $tranza);
         $this->session->set_userdata('seats_show', $time);
         foreach ($seats as $key => $seat) {
 
@@ -76,8 +75,21 @@ class Tickets extends CI_Controller {
                 'transaction' => md5($tranza)
             );
 
-            if (!$this->tickets_tb->create($dataSeat)) {
-                return $this->ajax_response(500, FALSE, 'Ocurrio un error');
+            $dataSort = array(
+                'schedule' => $time,
+                'num_seat' => $map[$seat],
+                'dt_show' => $date,
+            );
+
+            $ticket = $this->tickets_tb->sort($dataSort);
+            if ($ticket) {
+                if (!$this->tickets_tb->update($dataSeat, $ticket[0]['id_ticket'])) {
+                    return $this->ajax_response(500, FALSE, 'Ocurrio un error');
+                }
+            } else {
+                if (!$this->tickets_tb->create($dataSeat)) {
+                    return $this->ajax_response(500, FALSE, 'Ocurrio un error');
+                }
             }
         }
 

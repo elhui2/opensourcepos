@@ -24,16 +24,16 @@ Los asientos van numerados del 1 al 25 y acomodados segun el diagrama
 
 Bugs de version 0.4
 
-- El bloqueo de continuar con la venta sin seleccionar lugar, no funciona (solo da aviso).
-- La cancelación genera folios no utilizados.
-- Solicitar que cuando sea función el sistema pida horario, de no seleccionarlo no permita continuar. 
-- Cuando se solicita demanda no genera folio de boletos.
+- El bloqueo de continuar con la venta sin seleccionar lugar, no funciona (solo da aviso)[OK].
+- La cancelación genera folios no utilizados[OK].
+- Solicitar que cuando sea función el sistema pida horario, de no seleccionarlo no permita continuar[OK]. 
+- Cuando se solicita demanda no genera folio de boletos[OK].
 - Corte de boletos.
 - Falta app lectora de código de barras que cancele en sistema el boleto una vez escaneado.
 
 ¿Cual es el plan?
 
-Usar http://ulocation.rebootproject.mx para mostrar donde están las salas y hacer un booking y pago mediante alguna pasarela de pago.
+Usar https://ulocation.rebootproject.mx para mostrar donde están las salas y hacer un booking y pago mediante alguna pasarela de pago.
 
 - El sistema debe estar en algun servidor para que la base de datos sea accesible para todos los puntos de venta.
 - Tabla de salas (places en uLocation puede ser buena referencia).

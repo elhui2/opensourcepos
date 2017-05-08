@@ -54,7 +54,7 @@ if (isset($success)) {
                     <div class="form-group">
                         <label for="date_function">Hora</label>
                         <select class="form-control" id="funcion">
-                            <option>Seleccionar</option>
+                            <option value="0">Seleccionar</option>
                             <?php
                             for ($i = 11; $i <= 23; $i++) {
                                 $time_s = $i . ':00';
